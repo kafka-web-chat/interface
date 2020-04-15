@@ -19,7 +19,7 @@
 					<v-card-text>
 						<v-form>
 							<v-row>
-								<v-col cols="8">
+								<v-col cols="6">
 									<v-select :items="['success', 'info', 'warning', 'error']"
 										label="Type"
 										:color="type"
@@ -28,7 +28,15 @@
 									<v-text-field label="Text"
 										v-model="text"></v-text-field>
 								</v-col>
-								<v-col cols="7">
+								<v-col cols="6">
+									<v-select :items="['out-in', 'in-out']"
+										label="Mode"
+										v-model="$alertToast._mode"></v-select>
+									<v-select :items="transitionList"
+										label="Transition"
+										v-model="$alertToast._transition"></v-select>
+								</v-col>
+								<v-col cols="5">
 									<v-text-field type="number"
 										label="Timeout"
 										:disabled="!timeoutIsEnabled"
@@ -61,13 +69,18 @@ import {
 
 import route from '@/router'
 
+// __PluginInterface.
+
 @Component({})
 export default class App extends Vue {
 
-	private type!: string;
+	private type!: 'success' | 'info' | 'warning' | 'error';
 	private text!: string;
 	private timeout!: number;
 	private timeoutIsEnabled!: boolean;
+
+	private transitionList!: string[];
+
 
 	public data() {
 		return {
@@ -75,10 +88,17 @@ export default class App extends Vue {
 			text: 'This is a sample text',
 			timeout: 0,
 			timeoutIsEnabled: false,
+			transitionList: [
+				"fab-transition", "fade-transition", "expand-transition",
+				"scale-transition", "scroll-x-transition", "scroll-x-reverse-transition",
+				"scroll-y-transition", "scroll-y-reverse-transition", "slide-x-transition",
+				"slide-x-reverse-transition", "slide-y-transition", "slide-y-reverse-transition"
+			]
 		}
 	}
 
 	public push() {
+		console.log('Pushing')
 		this.$alertToast.push({
 			type: this.type,
 			text: this.text,

@@ -9,9 +9,7 @@
 				sm8
 				md6
 				lg3>
-				<v-card class="elevation-8"
-					:loading="isLoading"
-					:disabled="isLoading">
+				<v-card class="elevation-8">
 					<v-toolbar color="primary"
 						dark
 						flat>

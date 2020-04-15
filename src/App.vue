@@ -1,61 +1,62 @@
 <template>
-  <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-content>
-      <HelloWorld/>
-    </v-content>
-  </v-app>
+<v-app>
+	<router-view></router-view>
+</v-app>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import {
+	Component,
+	Watch,
+	Vue
+} from 'vue-property-decorator';
 
-export default Vue.extend({
-  name: 'App',
 
-  components: {
-    HelloWorld,
-  },
+import router from '@/router'
 
-  data: () => ({
-    //
-  }),
-});
+@Component({})
+export default class App extends Vue {
+	@Watch('$store.state.connectedToBackend')
+	onBackendStateChanges() {
+		if (this.$store.state.connectedToBackend === false) {
+			router.push({
+				path: '/connect'
+			})
+		}
+	}
+
+	mounted() {
+		console.log('mounted')
+		this.onBackendStateChanges();
+	}
+}
 </script>
+<style style="sass">
+html {
+	overflow-y: auto !important;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-button {
+	width: 0px;
+	height: 0px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--v-primary-base);
+	border: 0px;
+	border-radius: 0px;
+}
+
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+.v-card {
+	box-sizing: border-box;
+}
+</style>

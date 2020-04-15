@@ -74,11 +74,6 @@ import {
 
 import route from '@/router'
 
-import {
-	Kafka
-} from 'kafkajs'
-
-
 @Component({})
 export default class Chat extends Vue {
 	private items!: string[];

@@ -46,7 +46,7 @@ class PluginInterface {
 
 declare module 'vue/types/vue' {
 	interface Vue {
-		$test: PluginInterface;
+		$alertToast: PluginInterface;
 	}
 }
 
@@ -57,7 +57,7 @@ class Plugin {
 	public install(vue: typeof Vue, options?: any) {
 		console.log('asd', options)
 		Vue.component('alert-toast', AlertToastComponent)
-		vue.prototype.$test = new PluginInterface();
+		vue.prototype.$alertToast = new PluginInterface();
 	}
 }
 

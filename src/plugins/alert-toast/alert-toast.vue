@@ -3,7 +3,7 @@
 	<v-row align="end"
 		justify="end">
 		<v-col cols="2">
-			<v-alert v-for="([i, data]) in $test.notifications"
+			<v-alert v-for="([i, data]) in $alertToast.notifications"
 				:key="i"
 				:type="data.type"
 				text
@@ -14,7 +14,6 @@
 			</v-alert>
 		</v-col>
 	</v-row>
-	<!-- <v-alert v-for="(message, i) in $test.messages">{{message}}</v-alert> -->
 </div>
 </template>
 <script lang="ts">
@@ -26,11 +25,11 @@ import {
 @Component({})
 export default class AlertToast extends Vue {
 	mounted() {
-		this.$test.linkedComponents.push(this);
+		this.$alertToast.linkedComponents.push(this);
 	}
 
 	close(key: number) {
-		this.$test.delete(key)
+		this.$alertToast.delete(key)
 	}
 }
 </script>

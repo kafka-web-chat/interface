@@ -79,7 +79,7 @@ export default class App extends Vue {
 	}
 
 	public push() {
-		this.$test.push({
+		this.$alertToast.push({
 			type: this.type,
 			text: this.text,
 			timeout: this.timeoutIsEnabled ?

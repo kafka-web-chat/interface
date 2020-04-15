@@ -1,23 +1,36 @@
-import Vue from 'vue'
+import Vue from 'vue';
 import AlertToastComponent from './alert-toast.vue'
 
-interface NotificationData {
-	type: 'success' | 'info' | 'warning' | 'error';
-	text: string;
-	timeout?: number;
+export namespace PluginInterface {
+	export interface NotificationData {
+		type: 'success' | 'info' | 'warning' | 'error';
+		text: string;
+		timeout?: number;
+	}
 }
 
-class PluginInterface {
-	private notificationsMap: Map<number, NotificationData> = new Map();
+const listOfTransitions = [
+	"fab-transition", "fade-transition", "expand-transition",
+	"scale-transition", "scroll-x-transition", "scroll-x-reverse-transition",
+	"scroll-y-transition", "scroll-y-reverse-transition", "slide-x-transition",
+	"slide-x-reverse-transition", "slide-y-transition", "slide-y-reverse-transition"
+];
+
+export class PluginInterface {
+	private notificationsMap: Map<number, PluginInterface.NotificationData> = new Map();
 	public linkedComponents: Vue[] = [];
 
+	public _mode: string = 'out-in';
+	public _transition: string = 'slide-x-reverse-transition';
+
 	constructor() { }
+
 
 	public get notifications() {
 		return this.notificationsMap.entries();
 	}
 
-	push(data: NotificationData) {
+	push(data: PluginInterface.NotificationData) {
 		const currentKey = Math.random();
 		this.notificationsMap.set(currentKey, data);
 
@@ -49,7 +62,6 @@ declare module 'vue/types/vue' {
 		$alertToast: PluginInterface;
 	}
 }
-
 
 // export default
 class Plugin {

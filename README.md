@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # interface
 
 ## Project setup
@@ -18,6 +17,3 @@ npm run build
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
-=======
-sa
->>>>>>> ba14ea03ff8a2124bac81bd2e417d7b6f55b8131

@@ -8,12 +8,12 @@
 			<v-flex xs12
 				sm8
 				md6
-				lg3>
+				lg4>
 				<v-card class="elevation-8">
 					<v-toolbar color="primary"
 						dark
 						flat>
-						<v-toolbar-title>Connect to backend</v-toolbar-title>
+						<v-toolbar-title>Notification Test</v-toolbar-title>
 						<v-spacer></v-spacer>
 					</v-toolbar>
 					<v-card-text>
@@ -22,8 +22,8 @@
 								<v-col cols="6">
 									<v-select :items="['success', 'info', 'warning', 'error']"
 										label="Type"
-										:color="type"
-										v-model="type"></v-select>
+										v-model="type"
+										:color="type"></v-select>
 
 									<v-text-field label="Text"
 										v-model="text"></v-text-field>

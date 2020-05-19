@@ -8,7 +8,8 @@
 			<v-flex xs12
 				sm8
 				md6
-				lg3>
+				lg4
+				xl3>
 				<v-card class="elevation-8"
 					:loading="isLoading"
 					:disabled="isLoading">
@@ -86,5 +87,11 @@ export default class App extends Vue {
 
 		}, 1000)
 	}
+	//
+	// mounted() {
+	// 	route.push({
+	// 		path: '/chat'
+	// 	})
+	// }
 }
 </script>

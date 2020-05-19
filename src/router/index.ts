@@ -11,12 +11,12 @@ import NotificationTest from '@/views/NotificationTest.vue'
 
 
 const routes: Array<RouteConfig> = [
-	// { path: '/', redirect: '/login' },
+	{ path: '/', redirect: '/login' },
 	{ path: '/connect', component: Connect },
 	{ path: '/login', component: Login },
 	{ path: '/chat', component: Chat },
 	{ path: '/test', component: NotificationTest },
-	{ path: '/*', redirect: '/' }
+	{ path: '/*', redirect: '/test' }
 ]
 
 const router = new VueRouter({

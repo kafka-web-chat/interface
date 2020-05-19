@@ -43,14 +43,16 @@ export class PluginInterface {
 		this.update();
 	}
 
+	has(key: number): boolean {
+		return this.notificationsMap.has(key);
+	}
+
 	delete(key: number) {
 		this.notificationsMap.delete(key)
 		this.update();
 	}
 
 	update() {
-		console.log(this.notificationsMap)
-
 		this.linkedComponents.forEach(c => {
 			c.$forceUpdate();
 		})
@@ -67,7 +69,6 @@ declare module 'vue/types/vue' {
 class Plugin {
 
 	public install(vue: typeof Vue, options?: any) {
-		console.log('asd', options)
 		Vue.component('alert-toast', AlertToastComponent)
 		vue.prototype.$alertToast = new PluginInterface();
 	}

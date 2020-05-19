@@ -7,14 +7,16 @@ import Connect from '@/views/Connect.vue'
 import Login from '@/views/Login.vue'
 import Chat from '@/views/Chat.vue'
 
+import NotificationTest from '@/views/NotificationTest.vue'
 
 
 const routes: Array<RouteConfig> = [
-	// { path: '/', redirect: '/login' },
+	{ path: '/', redirect: '/login' },
 	{ path: '/connect', component: Connect },
 	{ path: '/login', component: Login },
 	{ path: '/chat', component: Chat },
-	{ path: '/*', redirect: '/' }
+	{ path: '/test', component: NotificationTest },
+	{ path: '/*', redirect: '/test' }
 ]
 
 const router = new VueRouter({

@@ -11,6 +11,11 @@ export default new Vuex.Store({
 			{ name: 'Alvaro', icon: 'package-variant-closed' },
 			{ name: 'Jesus', icon: 'palette-outline' },
 			{ name: 'Mario', icon: 'plus' }, // github-circle loading?? idk wth is this
-		]
+		],
+
+		chatMessages: {
+			// 'Pedro': []
+		}
+
 	}
 })

@@ -8,7 +8,8 @@
 			<v-flex xs12
 				sm8
 				md6
-				lg4>
+				lg4
+				xl3>
 				<v-card class="elevation-8"
 					:loading="isLoading"
 					:disabled="isLoading">
@@ -19,37 +20,37 @@
 						<v-spacer></v-spacer>
 					</v-toolbar>
 					<v-card-text>
-						<v-form>
+						<v-form ref="form">
 							<v-row>
-								<!-- :items="['lmn806.ddns.net', 'test']" -->
-								<v-col cols="8">
-									<!-- hide-no-data
-									hide-selected -->
+								<v-col>
 									<v-combobox :items="['localhost', 'lmn806.ddns.net', 'test']"
 										label="Host"
 										prepend-icon="mdi-lan-connect"
-										v-model="host"></v-combobox>
-									<!-- <v-text-field type="text"
-										label="Host"
-										prepend-icon="mdi-lan-connect"
-										v-model="host"></v-text-field> -->
+										v-model="$store.state.connection.host"></v-combobox>
 								</v-col>
-								<v-col>
+							</v-row>
+							<v-row>
+								<v-col cols="6">
 									<v-text-field type="number"
-										label="Port"
+										label="HTTP Port"
 										prepend-icon="mdi-unfold-less-horizontal"
-										v-model="port"></v-text-field>
+										v-model="$store.state.connection.httpPort"></v-text-field>
+								</v-col>
+								<v-col cols="6">
+									<v-text-field type="number"
+										label="WebSocket Port"
+										prepend-icon="mdi-unfold-less-horizontal"
+										v-model="$store.state.connection.wsPort"></v-text-field>
 								</v-col>
 							</v-row>
 						</v-form>
 					</v-card-text>
 					<v-card-actions>
 						<v-spacer></v-spacer>
-						<v-btn color="error"
-							:disabled="isConnected === false">Disconnect</v-btn>
+						<!-- <v-btn @click="reset">Reset</v-btn> -->
 						<v-btn color="primary"
-							:disabled="isConnected"
-							@click="connect">Connect</v-btn>
+							:disabled="isLoading"
+							@click="checkConnection">Ok</v-btn>
 					</v-card-actions>
 				</v-card>
 			</v-flex>
@@ -71,131 +72,76 @@ import route from '@/router'
 export default class App extends Vue {
 
 	private isLoading!: boolean;
-	private isConnected!: boolean;
-
-	private host!: string;
-	private port!: string;
 
 	public data() {
 		return {
 			isLoading: false,
-			isConnected: false,
-			host: 'localhost',
-			port: '49090'
 		}
 	}
 
-	public connect() {
-		console.log('Connect')
+	private get connection() {
+		return this.$store.state.connection
+	}
+
+	public reset() {
+		( < any > this.$refs.form).reset();
+		( < any > this.$refs.form).resetValidation();
+	}
+
+	public async checkConnection() {
 		this.isLoading = true;
 
+		const fetchPromise = new Promise((resolve, reject) => {
+			fetch(`${this.connection.httpURL}/check`)
+				.then(response => resolve())
+				.catch(error => {
+					this.$alertToast.push({
+						type: 'error',
+						text: 'Error while trying to connect to http server',
+						timeout: 3000
+					});
 
+					reject();
+				})
+		});
 
+		const wsPromise = new Promise((resolve, reject) => {
 
-		const url = `ws://${this.host}:${this.port}`;
-		const ws = new WebSocket(url);
+			const url = `${this.connection.wsURL}/check`;
+			const ws = new WebSocket(url);
 
-		ws.addEventListener('open', () => {
-			this.isLoading = false;
-			this.isConnected = true;
+			ws.addEventListener('open', () => {
+				this.$alertToast.push({
+					type: 'success',
+					text: 'Connection opened',
+					timeout: 3000
+				});
 
-			this.$alertToast.push({
-				type: 'success',
-				text: 'Connection opened',
-				timeout: 3000
+				ws.close()
+				resolve();
 			});
 
-			route.push({
-				path: '/login'
-			})
+			ws.addEventListener('error', (error) => {
+				this.$alertToast.push({
+					type: 'error',
+					text: 'Error while trying to connect to WebSocket server',
+					timeout: 3000
+				})
+
+				ws.close()
+				reject();
+			});
 		});
 
-		ws.addEventListener('message', (event) => {
-			try {
-
-				const data = JSON.parse(event.data);
-
-				if (data.type === 'notification') {
-					this.$alertToast.push({
-						type: 'info',
-						text: < string > data.text,
-						timeout: 3000
-					})
-				} else if (data.type === 'chat-message') {
-					try {
-						// {"plain":"ygyf","source":"client2","timestamp":1589461210950}
-						let message = JSON.parse(data.text);
-
-						if (this.$store.state.chatMessages[message.source] === undefined)
-							this.$set(this.$store.state.chatMessages, message.source, [])
-
-						this.$store.state.chatMessages[message.source].push({
-							text: message.plain,
-							timestamp: message.timestamp,
-							received: true
-						})
-					} catch (e) {}
-
-					console.log(this.$store.state.chatMessages)
-				}
-			} catch {
-				console.error('Invalid json packet')
-			}
-		});
-
-		ws.addEventListener('error', (error) => {
-			this.$alertToast.push({
-				type: 'error',
-				text: 'Websocket: Error',
-				timeout: 3000
+		Promise.all([fetchPromise, wsPromise])
+			.then(() => {
+				route.push({
+					path: '/login'
+				})
 			})
-
-			console.log(error)
-
-			if (ws.readyState === ws.CLOSED) {
-				this.isLoading = false;
-				this.isConnected = false;
-			}
-		})
-
-		ws.addEventListener('close', (event) => {
-			this.isLoading = false;
-			this.isConnected = false;
-
-			this.$alertToast.push({
-				type: 'info',
-				text: 'Websocket: Connection closed\nasdasdf',
-				timeout: 3000
-			})
-
-
-			console.log(event)
-
-
-			route.push({
-				path: '/connect'
-			})
-		});
-
-		// if (this.host === 'lmn806.ddns.net' && this.port === '9091') {
-		// 	route.push({
-		// 		path: '/login'
-		// 	})
-		//
-		// 	this.$alertToast.push({
-		// 		type: 'success',
-		// 		text: 'Se ha conectado correctamente',
-		// 		timeout: 5000
-		//
-		// 	})
-		// } else {
-		// 	this.$alertToast.push({
-		// 		type: 'error',
-		// 		text: 'Hubo un error al conectarse al servidor',
-		// 		timeout: 5000
-		// 	})
-		// }
-
+			.finally(() => {
+				this.isLoading = false
+			});
 	}
 }
 </script>

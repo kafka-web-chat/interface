@@ -43,6 +43,14 @@ export class PluginInterface {
 		this.update();
 	}
 
+	pushDefault(type: string, text: string) {
+		this.push({
+			type: <any>type,
+			text: text,
+			timeout: 3000
+		})
+	}
+
 	has(key: number): boolean {
 		return this.notificationsMap.has(key);
 	}

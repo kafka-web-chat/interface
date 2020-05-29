@@ -5,12 +5,30 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
+		connection: {
+			host: 'localhost',
+			httpPort: '49090',
+			wsPort: '49091',
+			use_secure: false,
+
+			get httpURL() {
+				return `http${this.use_secure ? 's' : ''}://${this.host}:${this.httpPort}`
+			},
+
+			get wsURL() {
+				return `ws${this.use_secure ? 's' : ''}://${this.host}:${this.wsPort}`
+			},
+
+			username: null,
+			token: null,
+			private_key: null,
+			public_key: null
+		},
+
 		connectedToBackend: false,
-		connectedUsers: [
-			{ name: 'Pedro', icon: 'tune-vertical' },
-			{ name: 'Alvaro', icon: 'package-variant-closed' },
-			{ name: 'Jesus', icon: 'palette-outline' },
-			{ name: 'Mario', icon: 'plus' }, // github-circle loading?? idk wth is this
-		]
+
+		chatMessages: {},
+
+		contacts: []
 	}
 })

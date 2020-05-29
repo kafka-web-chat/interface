@@ -1,6 +1,7 @@
 <template>
 <v-app>
 	<router-view></router-view>
+	<alert-toast></alert-toast>
 </v-app>
 </template>
 

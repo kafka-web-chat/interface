@@ -16,10 +16,8 @@
 					<v-toolbar color="primary"
 						dark
 						flat>
-						<v-toolbar-title>Login</v-toolbar-title>
+						<v-toolbar-title>Register</v-toolbar-title>
 						<v-spacer></v-spacer>
-						<router-link to="register"
-							style="color: white">No account?</router-link>
 					</v-toolbar>
 					<v-card-text>
 						<v-form ref="form">
@@ -35,9 +33,18 @@
 								prepend-icon="mdi-lock"
 								:append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
 								@click:append="show_password = !show_password"
-								:rules="[rules.required, rules.minPassword, rules.maxPassword, rules.validCharsPassword]"
+								:rules="[rules.required, rules.minPassword, rules.maxPassword, rules.validCharsPassword, rules.passwordIsStrong]"
 								counter
 								v-model="password"></v-text-field>
+
+							<v-text-field :type="show_password ? 'text' : 'password'"
+								label="Retype Password"
+								prepend-icon="mdi-lock"
+								:append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
+								@click:append="show_password = !show_password"
+								:rules="[rules.required, rules.passwordsMatch(password, re_password)]"
+								counter
+								v-model="re_password"></v-text-field>
 						</v-form>
 					</v-card-text>
 					<v-card-actions>
@@ -45,7 +52,7 @@
 						<v-btn color="primary"
 							@click="reset">Reset</v-btn>
 						<v-btn color="primary"
-							@click="login">Login</v-btn>
+							@click="register">Register</v-btn>
 					</v-card-actions>
 				</v-card>
 			</v-flex>
@@ -63,9 +70,9 @@ import {
 	Vue
 } from 'vue-property-decorator';
 
-import route from '@/router';
+import route from '@/router'
 
-import Rules from '@/utils/input-rules';
+import Rules from '@/utils/input-rules'
 
 @Component({})
 export default class App extends Vue {
@@ -74,12 +81,15 @@ export default class App extends Vue {
 
 	private username!: string;
 	private password!: string;
+	private re_password!: string;
+
 	private show_password!: boolean;
 
 	public data() {
 		return {
 			username: '',
 			password: '',
+			re_password: '',
 			show_password: false,
 			isLoading: false,
 		}
@@ -89,8 +99,8 @@ export default class App extends Vue {
 		return Rules;
 	}
 
-	get connection() {
-		return this.$store.state.connection;
+	private get connection() {
+		return this.$store.state.connection
 	}
 
 	public reset() {
@@ -98,16 +108,14 @@ export default class App extends Vue {
 		( < any > this.$refs.form).resetValidation();
 	}
 
-	public async login() {
-
+	public async register() {
 
 		if (( < any > this.$refs.form).validate() === false)
 			return;
 
 		this.isLoading = true;
 
-
-		const response = await axios.post(`${this.connection.httpURL}/login`, {
+		const response = await axios.post(`${this.connection.httpURL}/register`, {
 				username: this.username,
 				password: this.password
 			}).catch(err => {})
@@ -127,11 +135,12 @@ export default class App extends Vue {
 		this.connection.private_key = response.data.data.private_key;
 		this.connection.public_key = response.data.data.public_key;
 
-		this.$alertToast.pushDefault('success', 'Login succesfully');
+
+		this.$alertToast.pushDefault('success', 'Registered succesfully');
 
 		route.push({
 			path: '/chat'
-		})
+		});
 	}
 
 	public mounted() {

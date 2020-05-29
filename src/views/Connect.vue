@@ -8,7 +8,8 @@
 			<v-flex xs12
 				sm8
 				md6
-				lg3>
+				lg4
+				xl3>
 				<v-card class="elevation-8"
 					:loading="isLoading"
 					:disabled="isLoading">
@@ -19,27 +20,37 @@
 						<v-spacer></v-spacer>
 					</v-toolbar>
 					<v-card-text>
-						<v-form>
+						<v-form ref="form">
 							<v-row>
-								<v-col cols="8">
-									<v-text-field type="text"
+								<v-col>
+									<v-combobox :items="['localhost', 'lmn806.ddns.net', 'test']"
 										label="Host"
 										prepend-icon="mdi-lan-connect"
-										v-model="host"></v-text-field>
+										v-model="$store.state.connection.host"></v-combobox>
 								</v-col>
-								<v-col>
+							</v-row>
+							<v-row>
+								<v-col cols="6">
 									<v-text-field type="number"
-										label="Port"
+										label="HTTP Port"
 										prepend-icon="mdi-unfold-less-horizontal"
-										v-model="port"></v-text-field>
+										v-model="$store.state.connection.httpPort"></v-text-field>
+								</v-col>
+								<v-col cols="6">
+									<v-text-field type="number"
+										label="WebSocket Port"
+										prepend-icon="mdi-unfold-less-horizontal"
+										v-model="$store.state.connection.wsPort"></v-text-field>
 								</v-col>
 							</v-row>
 						</v-form>
 					</v-card-text>
 					<v-card-actions>
 						<v-spacer></v-spacer>
+						<!-- <v-btn @click="reset">Reset</v-btn> -->
 						<v-btn color="primary"
-							@click="connect">Connect</v-btn>
+							:disabled="isLoading"
+							@click="checkConnection">Ok</v-btn>
 					</v-card-actions>
 				</v-card>
 			</v-flex>
@@ -62,32 +73,75 @@ export default class App extends Vue {
 
 	private isLoading!: boolean;
 
-	private host!: string;
-	private port!: string;
-
 	public data() {
 		return {
 			isLoading: false,
-			host: '',
-			port: ''
 		}
 	}
 
-	public connect() {
-		console.log('Connect')
+	private get connection() {
+		return this.$store.state.connection
+	}
+
+	public reset() {
+		( < any > this.$refs.form).reset();
+		( < any > this.$refs.form).resetValidation();
+	}
+
+	public async checkConnection() {
 		this.isLoading = true;
 
-		setTimeout(() => {
+		const fetchPromise = new Promise((resolve, reject) => {
+			fetch(`${this.connection.httpURL}/check`)
+				.then(response => resolve())
+				.catch(error => {
+					this.$alertToast.push({
+						type: 'error',
+						text: 'Error while trying to connect to http server',
+						timeout: 3000
+					});
 
-			this.isLoading = false;
+					reject();
+				})
+		});
 
-			if (this.host === 'lmn806.ddns.net' && this.port === '9091') {
+		const wsPromise = new Promise((resolve, reject) => {
+
+			const url = `${this.connection.wsURL}/check`;
+			const ws = new WebSocket(url);
+
+			ws.addEventListener('open', () => {
+				this.$alertToast.push({
+					type: 'success',
+					text: 'Connection opened',
+					timeout: 3000
+				});
+
+				ws.close()
+				resolve();
+			});
+
+			ws.addEventListener('error', (error) => {
+				this.$alertToast.push({
+					type: 'error',
+					text: 'Error while trying to connect to WebSocket server',
+					timeout: 3000
+				})
+
+				ws.close()
+				reject();
+			});
+		});
+
+		Promise.all([fetchPromise, wsPromise])
+			.then(() => {
 				route.push({
 					path: '/login'
 				})
-			}
-
-		}, 1000)
+			})
+			.finally(() => {
+				this.isLoading = false
+			});
 	}
 }
 </script>

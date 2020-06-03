@@ -134,7 +134,7 @@
 			<v-col>
 				<v-card color="primary"
 					class="message-bubble"
-					:style="{float: `${data.received === true ? 'left' : 'right'}`}">
+					:style="{float: `${data.sended === false ? 'left' : 'right'}`}">
 					<v-card-text style="color: white">{{data.text}}</v-card-text>
 					<v-card-actions style="color: white">
 						<v-spacer />{{new Date(data.timestamp).toLocaleTimeString('es')}}</v-card-actions>
@@ -190,7 +190,7 @@ import KeyShareDialog from '@/components/chat/KeyShareDialog.vue';
 })
 export default class Chat extends Vue {
 
-	private http: AxiosInstance = null;
+	private http: any = null;
 
 	private items!: string[];
 
@@ -268,13 +268,13 @@ export default class Chat extends Vue {
 			const data = {
 				text: this.message,
 				timestamp: Date.now(),
-				received: false
+				sended: true
 			};
 
 			this.chatMessages[this.selectedChat].push({
 				text: this.message,
 				timestamp: Date.now(),
-				received: false
+				sended: true
 			});
 
 			if (this.ws === null)
@@ -292,7 +292,7 @@ export default class Chat extends Vue {
 
 	public async getChatHistory() {
 		const response: any = await this.http.get('/get/chat-history')
-			.catch(err => {})
+			.catch((err: any) => {})
 
 		if (response.data.success === false)
 			throw new Error(response.data.error)
@@ -302,7 +302,7 @@ export default class Chat extends Vue {
 
 	public async getContacts() {
 		const response: any = await this.http.get('/get/contacts')
-			.catch(err => {})
+			.catch((err: any) => {})
 
 		if (response.data.success === false)
 			throw new Error(response.data.error)
@@ -316,7 +316,7 @@ export default class Chat extends Vue {
 		const response: any = await this.http.post('/add/contact', {
 			username: username,
 			key: key,
-		}).catch(err => {})
+		}).catch((err: any) => {})
 
 		if (response.data.success === false)
 			throw new Error(response.data.error)
@@ -331,7 +331,7 @@ export default class Chat extends Vue {
 		this.newContactDialogIsOpen = false;
 
 		const response: any = await this.http.post(`/delete/contact/${username}`)
-			.catch(err => {})
+			.catch((err: any) => {})
 
 		if (response.data.success === false)
 			throw new Error(response.data.error)
@@ -385,6 +385,10 @@ export default class Chat extends Vue {
 			this.contacts.push(...contacts)
 		})
 
+		this.getChatHistory().then(chat_history => {
+			this.$set(this.$store.state, 'chatMessages', chat_history)
+		})
+
 		const url = `${this.connection.wsURL}/${this.connection.token}`;
 		this.ws = new WebSocket(url);
 
@@ -414,7 +418,7 @@ export default class Chat extends Vue {
 						this.chatMessages[message.source].push({
 							text: message.plain,
 							timestamp: message.timestamp,
-							received: true
+							sended: false
 						})
 					} catch (e) {}
 
